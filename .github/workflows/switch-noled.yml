@@ -1,0 +1,11 @@
+name: Switch build (noled fix)
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  switch:
+    name: Nintendo Switch
+    uses: ./.github/workflows/docker-image.yml

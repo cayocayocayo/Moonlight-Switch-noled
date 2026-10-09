@@ -1,0 +1,45 @@
+diff --git a/library/lib/platforms/switch/switch_platform.cpp b/library/lib/platforms/switch/switch_platform.cpp
+index 8525abb..36d7aba 100644
+--- a/library/lib/platforms/switch/switch_platform.cpp
++++ b/library/lib/platforms/switch/switch_platform.cpp
+@@ -183,13 +183,17 @@ void SwitchPlatform::setBacklightBrightness(float brightness)
+ {
+     if (brightness < 0) brightness = 0.0f;
+     if (brightness > 1) brightness = 1.0f;
++    if (R_FAILED(lblInitialize())) return;
+     lblSetCurrentBrightnessSetting(brightness);
++    lblExit();
+ }
+ 
+ float SwitchPlatform::getBacklightBrightness()
+ {
+     float brightness = 0.0f;
++    if (R_FAILED(lblInitialize())) return brightness;
+     lblGetCurrentBrightnessSetting(&brightness);
++    lblExit();
+     return brightness;
+ }
+ 
+diff --git a/library/lib/platforms/switch/switch_wrapper.c b/library/lib/platforms/switch/switch_wrapper.c
+index 83e154e..b8a7673 100644
+--- a/library/lib/platforms/switch/switch_wrapper.c
++++ b/library/lib/platforms/switch/switch_wrapper.c
+@@ -55,15 +55,15 @@ void userAppInit()
+     setInitialize();
+     psmInitialize();
+     nifmInitialize(NifmServiceType_User);
+-    lblInitialize();
++    // lbl (backlight) is opened on demand in SwitchPlatform instead of being
++    // held for the app's lifetime: the service has very few sessions, and
++    // holding one blocks overlays (e.g. noled) from controlling the backlight.
+ }
+ 
+ void userAppExit()
+ {
+     printf("userAppExit\n");
+ 
+-    // backlight
+-    lblExit();
+     // network state
+     nifmExit();
+     // power state

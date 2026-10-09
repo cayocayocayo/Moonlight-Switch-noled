@@ -19,6 +19,9 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Apply local patches (release lbl session for overlays like noled)
+      run: git -C extern/borealis apply --verbose ../../patches/borealis-lazy-lbl.patch
+
     - name: Remove useless fonts
       run: rm -rf ./resources/font
 
